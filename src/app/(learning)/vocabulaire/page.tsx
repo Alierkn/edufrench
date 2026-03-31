@@ -31,7 +31,7 @@ const DEMO_CARDS: VocabCard[] = [
 const DEMO_TOPIC: VocabTopic = {
   _id: "local-demo",
   title: "Démo — Connecteurs & académique (hors CMS)",
-  summary: "Sanity’de henüz vocabTopic yoksa bu set gösterilir.",
+  summary: "Örnek kelime seti — diğer konular yüklendiğinde listede görünür.",
   level: "B1",
   cards: DEMO_CARDS,
 };
@@ -110,12 +110,12 @@ export default function VocabulairePage() {
             Vocabulaire
           </span>
           <span className="font-sans font-bold text-gray-600 bg-white border-2 border-[var(--color-neo-border)] px-3 py-1 rounded">
-            Sanity + flashcards
+            Kartlar
           </span>
         </div>
         <h1 className="text-4xl sm:text-5xl text-[var(--color-neo-border)]">Kelime Kasası</h1>
         <p className="mt-3 text-lg font-medium text-gray-500 font-sans max-w-2xl">
-          Konu seç, kartları çevir; içerik Studio’dan gelir (profiline göre filtrelenir).
+          Konu seç, kartları çevir; listeler sınıfına ve okuluna göre uyarlanır.
         </p>
       </header>
 

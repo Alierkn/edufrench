@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
 import { Mic, Square, Download, Headphones, Loader2, AlertCircle, Send } from "lucide-react";
 import { loadLearningModule } from "../actions";
 import { pickPromptForPO } from "@/lib/mapLearningModule";
@@ -185,8 +186,14 @@ export default function POPage() {
 
   if (!moduleData) {
     return (
-      <div className="p-8 neo-box bg-amber-50 border-[4px] font-bold text-amber-900">
-        PO modülü yok. Sanity’de <code className="font-mono">moduleType: PO</code> veya açıklama içeren içerik ekleyin.
+      <div className="p-8 neo-box bg-amber-50 border-[4px] font-sans text-[var(--color-neo-border)] space-y-4">
+        <p className="font-black text-xl">Konuşma pratiği henüz açılmadı</p>
+        <p className="font-bold text-gray-700">
+          Bu alan için konu başlıkları eklendiğinde kayıt yapabileceksin. Şimdilik dinleme veya okuma modülüne geçebilirsin.
+        </p>
+        <Link href="/dashboard" className="inline-block neo-btn bg-white !no-underline">
+          Panele dön
+        </Link>
       </div>
     );
   }
@@ -198,9 +205,11 @@ export default function POPage() {
           <span className="neo-box px-3 py-1 text-sm font-bold uppercase neo-bg-green text-white shadow-none border-2">
             PO (Konuşma)
           </span>
-          <span className="font-sans font-bold text-[var(--color-neo-border)]/60 bg-gray-200 border-2 border-[var(--color-neo-border)] px-3 py-1 rounded text-sm">
-            {moduleData.level} • MediaRecorder
-          </span>
+          {moduleData.level && (
+            <span className="font-sans font-bold text-[var(--color-neo-border)]/60 bg-gray-200 border-2 border-[var(--color-neo-border)] px-3 py-1 rounded text-sm">
+              Seviye {moduleData.level}
+            </span>
+          )}
         </div>
         <h1 className="text-4xl sm:text-5xl text-[var(--color-neo-border)] relative inline-block">
           {title}

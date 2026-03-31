@@ -89,7 +89,7 @@ export default function GrammairePage() {
     if (!activeSource) return;
     if (activeSource.kind === "static") {
       if (activeSource.id !== "pronoms") {
-        setResultMessage("Bu demo modülde henüz egzersiz yok. Studio’dan içerik ekleyebilirsin.");
+        setResultMessage("Bu örnek modülde henüz alıştırma yok. Başka bir başlık seçebilirsin.");
         setResultOk(false);
         setPhase("result");
         return;
@@ -99,7 +99,7 @@ export default function GrammairePage() {
     }
     const ex = pickCmsExercise(activeSource.module);
     if (!ex) {
-      setResultMessage("Bu modülde henüz FILL/MCQ egzersizi yok. Sanity Studio’dan egzersiz ekleyin.");
+      setResultMessage("Bu modülde henüz çoktan seçmeli veya boşluk doldurma alıştırması yok. Katalogdan başka bir konu dene.");
       setResultOk(false);
       setPhase("result");
       return;
@@ -162,7 +162,7 @@ export default function GrammairePage() {
             Grammaire
           </span>
           <span className="font-sans font-bold text-[var(--color-neo-border)]/60 bg-gray-200 border-2 border-[var(--color-neo-border)] px-3 py-1 rounded">
-            Sanity + démo
+            Katalog + örnekler
           </span>
         </div>
         <h1 className="text-4xl sm:text-5xl text-[var(--color-neo-border)] relative inline-block">
@@ -180,19 +180,19 @@ export default function GrammairePage() {
             exit={{ opacity: 0, x: 50 }}
           >
             <p className="text-lg sm:text-xl font-medium text-gray-500 font-sans mb-6">
-              Studio’dan gelen modüller ve yerleşik örnekler.
+              Güncel konu başlıkları ve yerleşik örnek alıştırmalar.
             </p>
 
             {cmsLoading && (
               <p className="flex items-center gap-2 text-gray-500 font-bold mb-4">
-                <Loader2 className="animate-spin" size={20} /> CMS yükleniyor…
+                <Loader2 className="animate-spin" size={20} /> Modül listesi yükleniyor…
               </p>
             )}
 
             {cmsGrammarModules.length > 0 && (
               <div className="mb-10">
                 <h2 className="text-sm font-black uppercase tracking-widest text-[var(--color-neo-border)] mb-4 flex items-center gap-2">
-                  <Library size={18} /> Sanity Studio
+                  <Library size={18} /> Önerilen konular
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {cmsGrammarModules.map((mod) => (
@@ -260,7 +260,8 @@ export default function GrammairePage() {
 
               {activeSource.kind === "cms" && (
                 <div className="space-y-4 text-lg font-medium font-sans text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {activeSource.module.description || "Bu modül için açıklama ekleyin (Sanity Studio)."}
+                  {activeSource.module.description ||
+                    "Bu konu için teori metni henüz eklenmemiş; yine de alıştırmaya geçebilirsin."}
                 </div>
               )}
 

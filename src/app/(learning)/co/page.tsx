@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { Play, Pause, AlertCircle, Headphones, Loader2 } from "lucide-react";
 import { loadLearningModule } from "../actions";
 import { pickExerciseForCO } from "@/lib/mapLearningModule";
@@ -90,8 +91,14 @@ export default function COPage() {
 
   if (!moduleData || !exercise || exercise.options.length < 2) {
     return (
-      <div className="p-8 neo-box bg-amber-50 text-amber-900 font-bold border-[4px]">
-        CO içeriği yok. Sanity’de <code className="font-mono">moduleType: CO</code>, ses dosyalı egzersiz ve şıklar ekleyin veya Prisma seed kullanın.
+      <div className="p-8 neo-box bg-amber-50 text-[var(--color-neo-border)] font-sans border-[4px] space-y-4">
+        <p className="font-black text-xl">Dinleme içeriği şu an kullanılamıyor</p>
+        <p className="font-bold text-gray-700">
+          Bu bölüm için sesli alıştırmalar hazırlanıyor. Lütfen daha sonra tekrar dene veya okuma / kelime modüllerini dene.
+        </p>
+        <Link href="/dashboard" className="inline-block neo-btn bg-white !no-underline">
+          Panele dön
+        </Link>
       </div>
     );
   }
@@ -110,9 +117,11 @@ export default function COPage() {
           <span className="neo-box px-3 py-1 text-sm font-bold uppercase bg-[var(--color-neo-pink)] text-white shadow-none border-2">
             CO (Dinleme)
           </span>
-          <span className="font-sans font-bold text-[var(--color-neo-border)]/60 bg-gray-200 border-2 border-[var(--color-neo-border)] px-3 py-1 rounded text-sm">
-            {moduleData.level} • {moduleData.source === "cms" ? "Sanity" : "Prisma"}
-          </span>
+          {moduleData.level && (
+            <span className="font-sans font-bold text-[var(--color-neo-border)]/60 bg-gray-200 border-2 border-[var(--color-neo-border)] px-3 py-1 rounded text-sm">
+              Seviye {moduleData.level}
+            </span>
+          )}
         </div>
         <h1 className="text-4xl sm:text-5xl text-[var(--color-neo-border)] relative inline-block">
           {moduleData.title}

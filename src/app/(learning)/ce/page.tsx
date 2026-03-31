@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { ArrowLeft, ArrowRight, BrainCircuit, Type, AlertCircle, Clock } from "lucide-react";
 import { loadLearningModule } from "../actions";
 import { pickExerciseForCE } from "@/lib/mapLearningModule";
@@ -39,20 +40,29 @@ export default function CEPage() {
   if (isLoading) {
     return (
       <div className="p-8 text-2xl font-bold font-sans animate-pulse text-[var(--color-neo-border)]">
-        CMS / veritabanından modül yükleniyor…
+        Okuma modülü yükleniyor…
       </div>
     );
   }
 
   if (!moduleData || !exercise || exercise.options.length < 2) {
     return (
-      <div className="p-8 neo-box bg-red-50 text-red-600 font-bold border-[4px]">
-        CE içeriği bulunamadı. Sanity Studio veya Admin ile modül ekleyin (MCQ şıklı egzersiz).
+      <div className="p-8 neo-box bg-amber-50 text-[var(--color-neo-border)] font-sans border-[4px] space-y-4">
+        <p className="font-black text-xl">Bu modül için içerik henüz hazır değil</p>
+        <p className="font-bold text-gray-700">
+          CE (okuma) alıştırmaları yakında eklenecek. Şimdilik başka bir modüle geçebilir veya ana sayfadan devam edebilirsin.
+        </p>
+        <Link
+          href="/dashboard"
+          className="inline-block neo-btn bg-white text-[var(--color-neo-border)] !no-underline"
+        >
+          Panele dön
+        </Link>
       </div>
     );
   }
 
-  const sourceLabel = moduleData.source === "cms" ? "Sanity CMS" : "Prisma";
+  const levelLabel = moduleData.level ? `Seviye ${moduleData.level}` : "";
 
   return (
     <div className="space-y-8 pb-20">
@@ -62,9 +72,11 @@ export default function CEPage() {
             <span className="neo-box px-3 py-1 text-sm font-bold uppercase bg-[var(--color-neo-blue)] text-white shadow-none border-2">
               CE (Okuma)
             </span>
-            <span className="font-sans font-bold text-[var(--color-neo-border)]/60 bg-gray-200 border-2 border-[var(--color-neo-border)] px-3 py-1 rounded">
-              {moduleData.level} • {sourceLabel}
-            </span>
+            {levelLabel && (
+              <span className="font-sans font-bold text-[var(--color-neo-border)]/60 bg-gray-200 border-2 border-[var(--color-neo-border)] px-3 py-1 rounded">
+                {levelLabel}
+              </span>
+            )}
             <span className="flex items-center gap-1 font-bold text-gray-500 font-mono text-sm">
               <Clock size={16} /> ~15 dk
             </span>

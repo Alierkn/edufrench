@@ -1,9 +1,9 @@
 "use client";
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Target, TrendingUp, Zap, LogOut, ArrowRight, BookOpen, Headphones, Library, BrainCircuit, Mic, GraduationCap } from 'lucide-react';
+import { Sparkles, TrendingUp, Zap, LogOut, ArrowRight, BookOpen, Headphones, Library, BrainCircuit, Mic, GraduationCap } from 'lucide-react';
 import { useProgress } from '@/store/useProgress';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 // Map weakness strings to correct modules and icons
 const getRecommendation = (weakness: string) => {
@@ -37,24 +37,92 @@ const getSchoolName = (schoolCode: string) => {
   return schoolCode;
 };
 
+function uniqueStrings(items: (string | null | undefined)[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const raw of items) {
+    const s = typeof raw === "string" ? raw.trim() : "";
+    if (!s) continue;
+    const key = s.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(s);
+  }
+  return out;
+}
+
 export default function Dashboard() {
   const { data: session } = useSession();
   const userData = session?.user;
 
   const [isClient, setIsClient] = useState(false);
-  const { weaknesses, totalScore } = useProgress();
+  const { weaknesses: storeWeaknesses, totalScore: storeScore } = useProgress();
+  const [serverTotalScore, setServerTotalScore] = useState<number | null>(null);
+  const [serverWeakness, setServerWeakness] = useState<string | null>(null);
+  const [metricsLoading, setMetricsLoading] = useState(true);
 
   useEffect(() => {
-    // Prevent SSR Hydration Mismatch for persist store
     setIsClient(true);
   }, []);
 
-  if (!isClient) return <div className="p-8 text-2xl font-bold">Yükleniyor...</div>;
+  useEffect(() => {
+    if (!isClient) return;
+    if (!session?.user?.email) {
+      setMetricsLoading(false);
+      return;
+    }
 
-  // "Bugünün Odak Çalışması" algoritması
-  // Kullanıcının zayıflıkları store'da var ise ilk zayıf yönünü alır. Yoksa Vocab önerir.
-  const targetWeakness = weaknesses.length > 0 ? weaknesses[0] : "Genel Kelime Tekrarı";
+    let cancelled = false;
+
+    const loadMetrics = () => {
+      setMetricsLoading(true);
+      void (async () => {
+        try {
+          const res = await fetch("/api/user/metrics", { cache: "no-store" });
+          const data = await res.json().catch(() => ({}));
+          if (cancelled) return;
+          if (res.ok) {
+            if (typeof data.totalScore === "number") setServerTotalScore(data.totalScore);
+            if (typeof data.profileWeakness === "string" && data.profileWeakness)
+              setServerWeakness(data.profileWeakness);
+          }
+        } finally {
+          if (!cancelled) setMetricsLoading(false);
+        }
+      })();
+    };
+
+    loadMetrics();
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") loadMetrics();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [isClient, session?.user?.email]);
+
+  const mergedWeaknesses = useMemo(
+    () =>
+      uniqueStrings([
+        userData?.weakness,
+        serverWeakness,
+        ...storeWeaknesses,
+      ]),
+    [userData?.weakness, serverWeakness, storeWeaknesses]
+  );
+
+  const displayTotalScore =
+    serverTotalScore !== null ? serverTotalScore : storeScore;
+
+  const targetWeakness =
+    mergedWeaknesses[0] ?? "Genel Kelime Tekrarı";
   const recommendation = getRecommendation(targetWeakness);
+
+  if (!isClient) return <div className="p-8 text-2xl font-bold">Yükleniyor...</div>;
 
   return (
     <div className="space-y-8 pb-20">
@@ -84,7 +152,7 @@ export default function Dashboard() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="bg-white px-3 py-1 font-bold font-sans text-sm uppercase rounded shadow-[2px_2px_0_0_rgba(30,30,30,1)] border-2 border-[var(--color-neo-border)] text-[var(--color-neo-border)] flex items-center gap-2">
-                 <Target size={18} /> Akıllı Odak Algoritması
+                 <Sparkles size={18} /> Bugünün önerisi
               </span>
               {recommendation.icon}
             </div>
@@ -108,17 +176,28 @@ export default function Dashboard() {
                </div>
                <div>
                   <p className="text-sm font-bold text-gray-500 uppercase">Toplam Puan</p>
-                  <p className="text-3xl font-black font-mono">{totalScore}</p>
+                  <p className="text-3xl font-black font-mono">
+                    {metricsLoading && serverTotalScore === null ? "…" : displayTotalScore}
+                  </p>
+                  {!metricsLoading && (
+                    <p className="text-xs font-bold text-gray-400 mt-1">
+                      Gönderiler ve çalışma oturumlarına göre güncellenir
+                    </p>
+                  )}
                </div>
             </div>
 
             <div className="bg-red-50 p-4 neo-box !border-[3px]">
               <p className="text-sm font-bold text-gray-500 uppercase mb-2">Çözülememiş Hedefler (Zayıflıklar)</p>
               <div className="flex flex-wrap gap-2">
-                {weaknesses.map((w, i) => (
+                {mergedWeaknesses.map((w, i) => (
                   <span key={i} className="text-xs font-bold bg-white text-red-600 px-2 py-1 border-2 border-[var(--color-neo-border)]">{w}</span>
                 ))}
-                {weaknesses.length === 0 && <span className="text-sm font-bold text-green-600">Mükemmel! Zayıflık yok.</span>}
+                {mergedWeaknesses.length === 0 && (
+                  <span className="text-sm font-bold text-green-600">
+                    Henüz işaretli zayıf alan yok. Modüllerde çalıştıkça burası şekillenir.
+                  </span>
+                )}
               </div>
             </div>
 

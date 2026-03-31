@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { PenTool, BrainCircuit, Type, FileText, Loader2, AlertCircle } from "lucide-react";
 import { loadLearningModule } from "../actions";
 import { pickPromptForPE } from "@/lib/mapLearningModule";
@@ -82,8 +83,14 @@ export default function PEPage() {
 
   if (!moduleData) {
     return (
-      <div className="p-8 neo-box bg-amber-50 border-[4px] font-bold text-amber-900">
-        PE modülü bulunamadı. Sanity’de <code className="font-mono">moduleType: PE</code> veya Prisma’da içerik ekleyin.
+      <div className="p-8 neo-box bg-amber-50 border-[4px] font-sans text-[var(--color-neo-border)] space-y-4">
+        <p className="font-black text-xl">Yazma konusu henüz yok</p>
+        <p className="font-bold text-gray-700">
+          Bu modül için yazma görevleri eklenince burada görünecek. Şimdilik grammaire veya kelime çalışması yapabilirsin.
+        </p>
+        <Link href="/dashboard" className="inline-block neo-btn bg-white !no-underline">
+          Panele dön
+        </Link>
       </div>
     );
   }
@@ -95,9 +102,11 @@ export default function PEPage() {
           <span className="neo-box px-3 py-1 text-sm font-bold uppercase neo-bg-purple text-white shadow-none border-2">
             PE (Yazma)
           </span>
-          <span className="font-sans font-bold text-[var(--color-neo-border)]/60 bg-gray-200 border-2 border-[var(--color-neo-border)] px-3 py-1 rounded text-sm">
-            {moduleData.level} • {moduleData.source === "cms" ? "Sanity" : "Prisma"}
-          </span>
+          {moduleData.level && (
+            <span className="font-sans font-bold text-[var(--color-neo-border)]/60 bg-gray-200 border-2 border-[var(--color-neo-border)] px-3 py-1 rounded text-sm">
+              Seviye {moduleData.level}
+            </span>
+          )}
         </div>
         <h1 className="text-4xl sm:text-5xl text-[var(--color-neo-border)] relative inline-block">{title}</h1>
       </header>
