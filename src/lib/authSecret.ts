@@ -5,10 +5,9 @@ export function getNextAuthSecret(): string {
   const fromEnv = process.env.NEXTAUTH_SECRET?.trim();
   if (fromEnv) return fromEnv;
   if (process.env.NODE_ENV === "production") {
-    console.error(
-      "[next-auth] NEXTAUTH_SECRET tanımlı değil — oturum güvenliği risk altında. Vercel/host ortam değişkenini ayarlayın."
+    throw new Error(
+      "NEXTAUTH_SECRET tanımlı değil. Üretimde oturum imzası için güçlü bir gizli anahtar ayarlayın (ör. openssl rand -base64 32)."
     );
-    return "";
   }
   return "local-only-nextauth-secret-32chars-min!!";
 }

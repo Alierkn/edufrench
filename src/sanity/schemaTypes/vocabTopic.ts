@@ -56,6 +56,18 @@ export const vocabTopic = defineType({
       },
     }),
     defineField({
+      name: "sortOrder",
+      title: "Listeleme sırası",
+      type: "number",
+      initialValue: 0,
+    }),
+    defineField({
+      name: "isActive",
+      title: "Yayında",
+      type: "boolean",
+      initialValue: true,
+    }),
+    defineField({
       name: "cards",
       title: "Flashcard'lar",
       type: "array",
@@ -78,9 +90,22 @@ export const vocabTopic = defineType({
     }),
   ],
   preview: {
-    select: { title: "title", level: "level" },
-    prepare({ title, level }) {
-      return { title, subtitle: level };
+    select: { title: "title", level: "level", active: "isActive" },
+    prepare({ title, level, active }) {
+      return {
+        title,
+        subtitle: `${level || ""}${active === false ? " (kapalı)" : ""}`,
+      };
     },
   },
+  orderings: [
+    {
+      title: "Sıra, sonra başlık",
+      name: "sortOrderAsc",
+      by: [
+        { field: "sortOrder", direction: "asc" },
+        { field: "title", direction: "asc" },
+      ],
+    },
+  ],
 });

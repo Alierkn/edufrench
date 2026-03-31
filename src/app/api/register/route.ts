@@ -1,9 +1,24 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { rateLimit } from "@/lib/rateLimit";
+import { getRequestIp } from "@/lib/requestIp";
+import { validatePasswordStrength } from "@/lib/passwordPolicy";
+
+const REGISTER_WINDOW_MS = 60 * 60 * 1000;
+const REGISTER_MAX_PER_IP = 8;
 
 export async function POST(req: Request) {
   try {
+    const ip = getRequestIp(req);
+    const rl = rateLimit(`register:${ip}`, REGISTER_MAX_PER_IP, REGISTER_WINDOW_MS);
+    if (!rl.ok) {
+      return NextResponse.json(
+        { error: "Çok fazla kayıt denemesi. Lütfen daha sonra tekrar deneyin." },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+      );
+    }
+
     const raw = await req.json();
     const name = typeof raw.name === "string" ? raw.name.trim().slice(0, 120) : "";
     const email = typeof raw.email === "string" ? raw.email.trim().toLowerCase().slice(0, 254) : "";
@@ -20,19 +35,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Geçerli bir e-posta girin." }, { status: 400 });
     }
 
-    if (password.length < 6) {
-      return NextResponse.json(
-        { error: "Şifre en az 6 karakter olmalıdır." },
-        { status: 400 }
-      );
+    const pw = validatePasswordStrength(password);
+    if (!pw.ok) {
+      return NextResponse.json({ error: pw.message }, { status: 400 });
     }
 
-    // E-posta zaten kayıtlı mı?
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json(
-        { error: "Bu e-posta adresi zaten kayıtlı. Giriş yapmayı deneyin." },
-        { status: 409 }
+        { error: "Kayıt tamamlanamadı. Bilgilerinizi kontrol edip tekrar deneyin." },
+        { status: 400 }
       );
     }
 

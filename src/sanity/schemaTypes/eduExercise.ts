@@ -41,6 +41,30 @@ export const eduExercise = defineType({
       rows: 6,
     }),
     defineField({
+      name: "hint",
+      title: "İpucu (öğrenciye)",
+      type: "text",
+      rows: 2,
+    }),
+    defineField({
+      name: "feedbackCorrect",
+      title: "Doğru cevap geri bildirimi",
+      type: "text",
+      rows: 2,
+    }),
+    defineField({
+      name: "feedbackWrong",
+      title: "Yanlış cevap geri bildirimi",
+      type: "text",
+      rows: 2,
+    }),
+    defineField({
+      name: "sortOrder",
+      title: "Modül içi sıra",
+      type: "number",
+      initialValue: 0,
+    }),
+    defineField({
       name: "media",
       title: "Ses veya görsel",
       type: "file",

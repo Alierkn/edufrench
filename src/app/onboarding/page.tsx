@@ -13,7 +13,8 @@ export default function OnboardingFlow() {
     grade: '',
     school: '',
     weakness: '',
-    source: ''
+    source: '',
+    emailFomoOptIn: false,
   });
   const [profileError, setProfileError] = useState<string | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
@@ -148,6 +149,20 @@ export default function OnboardingFlow() {
                   <OptionButton label="Öğretmenim Bahsetti" field="source" value="teacher" icon={<Podcast size={28} />} />
                   <OptionButton label="Sosyal Medya (Instagram vb.)" field="source" value="social" icon={<Podcast size={28} />} />
                </div>
+               <label className="flex items-start gap-4 mt-8 p-6 neo-box bg-white border-[3px] border-[var(--color-neo-border)] cursor-pointer max-w-2xl">
+                 <input
+                   type="checkbox"
+                   className="mt-1 size-5 shrink-0 accent-[var(--color-neo-border)]"
+                   checked={answers.emailFomoOptIn}
+                   onChange={(e) =>
+                     setAnswers({ ...answers, emailFomoOptIn: e.target.checked })
+                   }
+                 />
+                 <span className="font-bold font-sans text-gray-700 text-lg leading-snug">
+                   Aynı okuldan arkadaşlarıma, bir modüle başladığımda bildirim e-postası gönderilmesine izin veriyorum.
+                   (İstediğin zaman profilden kapatabilirsin.)
+                 </span>
+               </label>
             </motion.div>
           )}
         </AnimatePresence>

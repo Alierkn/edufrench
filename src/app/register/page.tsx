@@ -23,8 +23,12 @@ export default function RegisterPage() {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Şifre en az 6 karakter olmalıdır.');
+    if (password.length < 10) {
+      setError('Şifre en az 10 karakter olmalıdır.');
+      return;
+    }
+    if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+      setError('Şifre en az bir küçük harf, bir büyük harf ve bir rakam içermelidir.');
       return;
     }
 

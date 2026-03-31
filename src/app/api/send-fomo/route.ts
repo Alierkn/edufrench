@@ -12,19 +12,42 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Kullanıcı bilgisini çek (okul, vb.)
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Geçersiz JSON" }, { status: 400 });
+  }
+
   const currentUser = await prisma.user.findUnique({
-    where: { email: session.user.email }
+    where: { email: session.user.email },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      school: true,
+      emailFomoOptIn: true,
+    },
   });
 
   if (!currentUser || !currentUser.school) {
      return NextResponse.json({ error: "Kullanıcı veya Okul bilgisi eksik" }, { status: 400 });
   }
 
-  const { moduleId, action } = await req.json();
+  if (!currentUser.emailFomoOptIn) {
+    return NextResponse.json({
+      success: true,
+      skipped: true,
+      message: "FOMO e-postaları için profilde onay gerekir.",
+    });
+  }
+
+  const raw = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
+  const moduleId = typeof raw.moduleId === "string" ? raw.moduleId : "";
+  const action = typeof raw.action === "string" ? raw.action : "";
 
   let studySession: Awaited<ReturnType<typeof prisma.studySession.create>> | null = null;
-  if (action === "start" && typeof moduleId === "string" && moduleId.length > 0) {
+  if (action === "start" && moduleId.length > 0) {
     const prismaModule = await prisma.module.findUnique({ where: { id: moduleId } });
     if (!prismaModule) {
       return NextResponse.json({
@@ -45,9 +68,10 @@ export async function POST(req: Request) {
     const classMates = await prisma.user.findMany({
        where: { 
          school: currentUser.school, 
-         id: { not: currentUser.id }
+         id: { not: currentUser.id },
+         emailFomoOptIn: true,
        },
-       take: 5 // Çok kalabalıksa ilk 5 kişiyi uyaralım (API limitleri için)
+       take: 5
      });
 
      // 3. Resend API ile Onlara "Ahmet çalışıyor" Maili Gönder (Şifre varsa)

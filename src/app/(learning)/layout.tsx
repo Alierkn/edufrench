@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   BookOpen,
@@ -9,6 +10,11 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import { SidebarGradeBadge } from "@/components/SidebarGradeBadge";
+
+export const metadata: Metadata = {
+  title: { default: "Öğrenme alanı" },
+  robots: { index: false, follow: false },
+};
 
 export default function LearningLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -2,10 +2,17 @@ import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { Database, RefreshCw, Layers, PenLine } from "lucide-react";
 import Link from 'next/link';
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-// SEED ACTION
 async function seedDatabase() {
   "use server";
+
+  const session = await getServerSession(authOptions);
+  if (session?.user?.role !== "ADMIN") {
+    redirect("/dashboard");
+  }
   
   // Clear existing data
   await prisma.exerciseOption.deleteMany();
@@ -113,6 +120,11 @@ async function seedDatabase() {
 }
 
 export default async function AdminPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || session.user.role !== "ADMIN") {
+    redirect("/dashboard");
+  }
+
   const modules = await prisma.module.findMany({
     include: { exercises: true },
     orderBy: { createdAt: 'desc' }

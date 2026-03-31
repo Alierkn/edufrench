@@ -10,6 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 // ==========================================
 // NEXTAUTH ŞEMALARI
 // ==========================================
@@ -58,6 +63,9 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?   // bcrypt hashed password
+  role          UserRole  @default(USER)
+  /// Arkadaş FOMO e-postaları için açık rıza (varsayılan kapalı)
+  emailFomoOptIn Boolean @default(false)
   
   // Custom EduFrancais fields
   school        String?   // Saint Joseph vs.

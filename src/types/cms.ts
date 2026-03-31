@@ -8,6 +8,10 @@ export type CmsExercise = {
   exerciseType?: string;
   content?: string;
   mediaUrl?: string | null;
+  hint?: string;
+  feedbackCorrect?: string;
+  feedbackWrong?: string;
+  sortOrder?: number;
   options?: CmsExerciseOption[];
 };
 
@@ -16,9 +20,14 @@ export type CmsModule = {
   _id: string;
   title: string;
   slug?: string;
+  subtitle?: string;
   moduleType?: string;
   level?: string;
   description?: string | null;
+  estimatedMinutes?: number;
+  tags?: string[];
+  coverUrl?: string | null;
+  sortOrder?: number;
   targetGrades?: string[];
   targetSchools?: string[];
   exercises?: CmsExercise[] | null;

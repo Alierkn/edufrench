@@ -49,10 +49,42 @@ export const eduModule = defineType({
       },
     }),
     defineField({
+      name: "subtitle",
+      title: "Alt başlık",
+      type: "string",
+      description: "Liste ve kart görünümleri için kısa metin",
+    }),
+    defineField({
       name: "description",
       title: "Açıklama",
       type: "text",
       rows: 4,
+    }),
+    defineField({
+      name: "coverImage",
+      title: "Kapak görseli",
+      type: "image",
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: "estimatedMinutes",
+      title: "Tahmini süre (dk)",
+      type: "number",
+      validation: (r) => r.min(1).max(240).integer(),
+    }),
+    defineField({
+      name: "tags",
+      title: "Etiketler",
+      type: "array",
+      of: [{ type: "string" }],
+      options: { layout: "tags" },
+    }),
+    defineField({
+      name: "sortOrder",
+      title: "Listeleme sırası",
+      type: "number",
+      initialValue: 0,
+      description: "Küçük sayı önce gelir",
     }),
     defineField({
       name: "targetGrades",
@@ -104,4 +136,14 @@ export const eduModule = defineType({
       };
     },
   },
+  orderings: [
+    {
+      title: "Sıra, sonra başlık",
+      name: "sortOrderAsc",
+      by: [
+        { field: "sortOrder", direction: "asc" },
+        { field: "title", direction: "asc" },
+      ],
+    },
+  ],
 });

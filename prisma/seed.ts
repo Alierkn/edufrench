@@ -196,6 +196,15 @@ Yazara göre yapay zekanın temel paradoksu nedir?`,
     }
   });
 
+  const adminEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
+  if (adminEmail) {
+    await prisma.user.updateMany({
+      where: { email: adminEmail },
+      data: { role: "ADMIN" },
+    });
+    console.log(`🔐 ADMIN_BOOTSTRAP_EMAIL (${adminEmail}) kullanıcıları ADMIN yapıldı (varsa).`);
+  }
+
   console.log('✅ NeonDB başarıyla tohumlandı!');
   console.log(`Oluşturulan Modüller: A1 Vocabulaire, A1 Grammaire, A2 CE, B1 CE, B1 PE, B1 Vocabulaire, B2 CE, B2 Grammaire`);
   console.log(`Toplam: 8 modül, çok sayıda egzersiz ve MCQ seçeneği.`);

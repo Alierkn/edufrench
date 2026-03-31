@@ -19,6 +19,7 @@ export async function GET() {
         grade: true,
         weakness: true,
         source: true,
+        emailFomoOptIn: true,
       },
     });
     if (!user) {
@@ -47,6 +48,8 @@ export async function PATCH(req: Request) {
     const grade = clamp(body.grade, 20);
     const weakness = clamp(body.weakness, 120);
     const source = clamp(body.source, 80);
+    const emailFomoOptIn =
+      typeof body.emailFomoOptIn === "boolean" ? body.emailFomoOptIn : undefined;
 
     const updatedUser = await prisma.user.update({
       where: { email: session.user.email },
@@ -55,6 +58,7 @@ export async function PATCH(req: Request) {
         ...(grade && { grade }),
         ...(weakness && { weakness }),
         ...(source && { source }),
+        ...(emailFomoOptIn !== undefined && { emailFomoOptIn }),
       },
     });
 
@@ -63,7 +67,8 @@ export async function PATCH(req: Request) {
       user: { 
         school: updatedUser.school, 
         grade: updatedUser.grade,
-        weakness: updatedUser.weakness 
+        weakness: updatedUser.weakness,
+        emailFomoOptIn: updatedUser.emailFomoOptIn,
       } 
     });
   } catch (error) {

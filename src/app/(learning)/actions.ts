@@ -16,20 +16,14 @@ import {
 } from "@/lib/mapLearningModule";
 import { prismaModuleMatchesUser } from "@/lib/prismaContentFilter";
 
-export async function getRandomModule(type: string) {
-  const modules = await prisma.module.findMany({
-    where: { type },
-    include: { exercises: { include: { options: true } } },
-  });
-  if (modules.length === 0) return null;
-  return modules[Math.floor(Math.random() * modules.length)];
-}
-
 /**
  * Önce Sanity (profil filtresi), yoksa Prisma’dan rastgele modül.
+ * Oturum zorunlu; hedef kısıtlı içerik asla filtreyi bypass etmez.
  */
 export async function loadLearningModule(moduleType: string): Promise<UnifiedLearningModule | null> {
   const session = await getServerSession(authOptions);
+  if (!session?.user?.email) return null;
+
   const user = session?.user as { grade?: string; school?: string } | undefined;
 
   try {
@@ -59,9 +53,11 @@ export async function loadLearningModule(moduleType: string): Promise<UnifiedLea
   const profileFiltered = prismaMods.filter((m) =>
     prismaModuleMatchesUser(m, user?.grade, user?.school)
   );
-  const poolRaw = profileFiltered.length ? profileFiltered : prismaMods;
+  if (!profileFiltered.length) return null;
 
-  const mapped = poolRaw.map(mapPrismaModule).filter((u) => isModuleUsableForType(u, moduleType));
-  const pool = mapped.length ? mapped : poolRaw.map(mapPrismaModule);
+  const mapped = profileFiltered
+    .map(mapPrismaModule)
+    .filter((u) => isModuleUsableForType(u, moduleType));
+  const pool = mapped.length ? mapped : profileFiltered.map(mapPrismaModule);
   return randomElement(pool);
 }
