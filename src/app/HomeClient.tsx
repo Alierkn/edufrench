@@ -4,6 +4,29 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, GraduationCap } from "lucide-react";
 import type { HomePageCopy } from "@/lib/homeCopy";
+import type { HomeFooterData, HomeFooterLink } from "@/lib/homeFooter";
+
+function FooterLinkRow({ link }: { link: HomeFooterLink }) {
+  const external = /^https?:\/\//i.test(link.href);
+  const className =
+    "font-bold text-sm text-gray-600 hover:text-[var(--color-neo-border)] underline decoration-2 underline-offset-2";
+  if (external) {
+    return (
+      <a
+        href={link.href}
+        className={className}
+        {...(link.openInNewTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      >
+        {link.label}
+      </a>
+    );
+  }
+  return (
+    <Link href={link.href} className={className}>
+      {link.label}
+    </Link>
+  );
+}
 
 function SubheadWithBold({ text }: { text: string }) {
   const parts = text.split(/\*\*(.+?)\*\*/g);
@@ -22,6 +45,11 @@ function SubheadWithBold({ text }: { text: string }) {
   );
 }
 
+type HomeClientProps = HomePageCopy & {
+  siteName: string;
+  footer: HomeFooterData;
+};
+
 export default function HomeClient({
   badge,
   headlineLine1,
@@ -29,10 +57,14 @@ export default function HomeClient({
   subhead,
   ctaLabel,
   ctaHref,
-}: HomePageCopy) {
+  siteName,
+  footer,
+}: HomeClientProps) {
+  const showFooterBlock =
+    footer.columns.length > 0 || footer.note || footer.supportEmail;
 
   return (
-    <div className="relative min-h-screen bg-[#FDF9F1] overflow-hidden flex flex-col justify-center items-center">
+    <div className="relative min-h-screen bg-[#FDF9F1] overflow-hidden flex flex-col">
       <motion.div
         className="absolute top-0 w-full flex justify-between px-10 h-full pointer-events-none opacity-20"
         initial={{ y: -1000 }}
@@ -45,7 +77,7 @@ export default function HomeClient({
         <div className="w-1 h-full bg-[var(--color-neo-border)]" />
       </motion.div>
 
-      <div className="relative z-10 text-center max-w-5xl px-6">
+      <div className="relative z-10 flex-1 flex flex-col justify-center items-center text-center max-w-5xl px-6 mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -97,15 +129,59 @@ export default function HomeClient({
       </div>
 
       <motion.div
-        className="absolute bottom-10 left-10 w-32 h-32 neo-bg-pink border-4 border-[var(--color-neo-border)] rounded-full z-0"
+        className="absolute bottom-10 left-10 w-32 h-32 neo-bg-pink border-4 border-[var(--color-neo-border)] rounded-full z-0 pointer-events-none"
         animate={{ y: [0, -20, 0] }}
         transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute top-20 right-20 w-40 h-40 neo-bg-blue border-4 border-[var(--color-neo-border)] z-0 rotate-12"
+        className="absolute top-20 right-20 w-40 h-40 neo-bg-blue border-4 border-[var(--color-neo-border)] z-0 rotate-12 pointer-events-none"
         animate={{ rotate: [12, 24, 12] }}
         transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
       />
+
+      <footer className="relative z-10 w-full mt-auto border-t-4 border-[var(--color-neo-border)] bg-white/90 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-6 py-10">
+          {showFooterBlock && (
+            <>
+              {footer.columns.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-left mb-8">
+                  {footer.columns.map((col, colIdx) => (
+                    <div key={`${col.heading}-${colIdx}`}>
+                      <h3 className="font-black text-xs uppercase tracking-widest text-gray-500 mb-3 border-b-2 border-[var(--color-neo-border)] pb-2 inline-block">
+                        {col.heading}
+                      </h3>
+                      <ul className="space-y-2">
+                        {col.links.map((link, li) => (
+                          <li key={`${colIdx}-${li}-${link.href}`}>
+                            <FooterLinkRow link={link} />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {footer.note && (
+                <p className="text-sm font-medium text-gray-600 max-w-2xl mb-4">{footer.note}</p>
+              )}
+              {footer.supportEmail && (
+                <p className="text-sm font-bold text-gray-500 mb-4">
+                  Destek:{" "}
+                  <a
+                    href={`mailto:${footer.supportEmail}`}
+                    className="text-[var(--color-neo-blue)] underline decoration-2 underline-offset-2"
+                  >
+                    {footer.supportEmail}
+                  </a>
+                </p>
+              )}
+            </>
+          )}
+          <p className="text-xs font-bold text-gray-400 font-mono pt-2 border-t-2 border-dashed border-gray-300">
+            © {new Date().getFullYear()} {siteName}
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

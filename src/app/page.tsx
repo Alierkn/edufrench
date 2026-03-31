@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getAppCopyDocument } from "@/lib/getAppCopyCached";
+import { getLegalPagesNav } from "@/lib/getLegalPagesNav";
 import { buildHomeCopy } from "@/lib/homeCopy";
+import { buildHomeFooterData } from "@/lib/homeFooter";
 import { getSiteSettingsForSeo } from "@/lib/seo/fetchSiteSeo";
 import { pageMetadataFromSanitySeo } from "@/lib/seo/mapSanitySeo";
 import { mergeSanitySeo } from "@/lib/seo/mergeSanitySeo";
@@ -23,8 +25,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const appCopy = await getAppCopyDocument();
+  const [appCopy, settings, legalNav] = await Promise.all([
+    getAppCopyDocument(),
+    getSiteSettingsForSeo(),
+    getLegalPagesNav(),
+  ]);
   const home = buildHomeCopy(appCopy as Parameters<typeof buildHomeCopy>[0]);
+  const footer = buildHomeFooterData(settings, legalNav);
+  const siteName = settings?.siteName?.trim() || "EduFrancais";
 
-  return <HomeClient {...home} />;
+  return <HomeClient {...home} siteName={siteName} footer={footer} />;
 }

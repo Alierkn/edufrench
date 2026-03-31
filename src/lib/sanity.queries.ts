@@ -53,6 +53,7 @@ export const siteSettingsQuery = `
     "defaultSeo": defaultSeo {
       title,
       description,
+      keywords,
       "ogImageUrl": ogImage.asset->url
     },
     headerNav,
@@ -69,6 +70,14 @@ export const legalPagesSlugsQuery = `
   }
 `;
 
+/** Footer / menü için başlık + slug (sitemap’ten ayrı, sıralı liste) */
+export const legalPagesNavQuery = `
+  *[_type == "legalPage" && defined(slug.current)] | order(title asc) {
+    title,
+    "slug": slug.current
+  }
+`;
+
 export const legalPageBySlugQuery = `
   *[_type == "legalPage" && slug.current == $slug][0] {
     title,
@@ -76,6 +85,7 @@ export const legalPageBySlugQuery = `
     seo {
       title,
       description,
+      keywords,
       "ogImageUrl": ogImage.asset->url
     },
     body
@@ -87,6 +97,7 @@ export const appCopyQuery = `
     "homeSeo": homeSeo {
       title,
       description,
+      keywords,
       "ogImageUrl": ogImage.asset->url
     },
     homeBadge,
