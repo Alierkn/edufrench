@@ -3,6 +3,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { getNextAuthSecret } from "@/lib/authSecret";
+
+const PROFILE_REFRESH_MS = 30_000;
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -33,8 +36,8 @@ export const authOptions: AuthOptions = {
       }
     })
   ],
-  session: { strategy: 'jwt' },
-  secret: process.env.NEXTAUTH_SECRET || "neo-brutalist-edu-francais-super-secret",
+  session: { strategy: "jwt" },
+  secret: getNextAuthSecret(),
   pages: {
     signIn: '/login',
   },
@@ -42,9 +45,15 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.profileFetchedAt = 0;
       }
       const userId = (token.id as string) || (token.sub as string);
-      if (userId) {
+      const last =
+        typeof token.profileFetchedAt === "number" ? token.profileFetchedAt : 0;
+      const shouldRefreshProfile =
+        Boolean(user) || Date.now() - last > PROFILE_REFRESH_MS;
+
+      if (userId && shouldRefreshProfile) {
         const dbUser = await prisma.user.findUnique({
           where: { id: userId },
           select: { school: true, grade: true, weakness: true, name: true, email: true },
@@ -56,15 +65,16 @@ export const authOptions: AuthOptions = {
           token.name = dbUser.name;
           token.email = dbUser.email;
         }
+        token.profileFetchedAt = Date.now();
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).school = token.school;
-        (session.user as any).grade = token.grade;
-        (session.user as any).weakness = token.weakness;
+        session.user.id = token.id as string;
+        session.user.school = token.school;
+        session.user.grade = token.grade;
+        session.user.weakness = token.weakness;
         if (token.name) session.user.name = token.name as string;
         if (token.email) session.user.email = token.email as string;
       }

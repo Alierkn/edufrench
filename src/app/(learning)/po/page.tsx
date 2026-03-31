@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Mic, Square, Download, Headphones, Loader2, AlertCircle } from "lucide-react";
+import { Mic, Square, Download, Headphones, Loader2, AlertCircle, Send } from "lucide-react";
 import { loadLearningModule } from "../actions";
 import { pickPromptForPO } from "@/lib/mapLearningModule";
 import type { UnifiedLearningModule } from "@/types/learning";
@@ -19,10 +19,20 @@ export default function POPage() {
   const [isFinished, setIsFinished] = useState(false);
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [micError, setMicError] = useState<string | null>(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [submitOk, setSubmitOk] = useState<string | null>(null);
+  const [submitErr, setSubmitErr] = useState<string | null>(null);
+  const [lastDurationSec, setLastDurationSec] = useState(0);
 
   const chunksRef = useRef<BlobPart[]>([]);
   const mediaRecRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const timeLeftRef = useRef(MAX_SECONDS);
+  const lastBlobRef = useRef<Blob | null>(null);
+
+  useEffect(() => {
+    timeLeftRef.current = timeLeft;
+  }, [timeLeft]);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,8 +106,13 @@ export default function POPage() {
       };
       mr.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: mr.mimeType || "audio/webm" });
+        lastBlobRef.current = blob;
+        const elapsed = Math.min(MAX_SECONDS, Math.max(1, MAX_SECONDS - timeLeftRef.current));
+        setLastDurationSec(elapsed);
         setBlobUrl(URL.createObjectURL(blob));
         setIsFinished(true);
+        setSubmitOk(null);
+        setSubmitErr(null);
       };
 
       mr.start(200);
@@ -114,6 +129,41 @@ export default function POPage() {
       stopRecording();
     } else {
       void startRecording();
+    }
+  };
+
+  const submitToPortal = async () => {
+    if (!moduleData) return;
+    setSubmitLoading(true);
+    setSubmitErr(null);
+    setSubmitOk(null);
+    const blob = lastBlobRef.current;
+    const firstEx = moduleData.exercises[0];
+    try {
+      const res = await fetch("/api/submissions/po", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          moduleId: moduleData.id,
+          moduleSource: moduleData.source,
+          durationSeconds: lastDurationSec || Math.min(MAX_SECONDS, MAX_SECONDS - timeLeftRef.current),
+          exerciseId: firstEx?.id,
+          audioMimeType: blob?.type,
+          audioByteLength: blob?.size,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSubmitErr(typeof data.error === "string" ? data.error : "Kayıt başarısız");
+        return;
+      }
+      setSubmitOk(
+        typeof data.message === "string" ? data.message : "Gönderim kaydedildi. Öğretmen panelinden görülebilir."
+      );
+    } catch {
+      setSubmitErr("Ağ hatası");
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -210,27 +260,55 @@ export default function POPage() {
                 )}
               </button>
             ) : (
-              <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+              <div className="flex flex-col gap-4 w-full max-w-lg">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="button"
+                    className="neo-btn !bg-white text-lg flex items-center justify-center gap-2"
+                    onClick={() => {
+                      if (blobUrl) URL.revokeObjectURL(blobUrl);
+                      setBlobUrl(null);
+                      lastBlobRef.current = null;
+                      setIsFinished(false);
+                      setTimeLeft(MAX_SECONDS);
+                      setSubmitOk(null);
+                      setSubmitErr(null);
+                    }}
+                  >
+                    <Mic size={20} /> Recommencer
+                  </button>
+                  {blobUrl && (
+                    <a
+                      href={blobUrl}
+                      download={`po-${moduleData.id}.webm`}
+                      className="neo-btn neo-bg-blue !text-white text-lg flex items-center justify-center gap-2"
+                    >
+                      <Download size={20} /> Télécharger
+                    </a>
+                  )}
+                </div>
                 <button
                   type="button"
-                  className="neo-btn !bg-white text-lg flex items-center justify-center gap-2"
-                  onClick={() => {
-                    if (blobUrl) URL.revokeObjectURL(blobUrl);
-                    setBlobUrl(null);
-                    setIsFinished(false);
-                    setTimeLeft(MAX_SECONDS);
-                  }}
+                  disabled={submitLoading}
+                  onClick={() => void submitToPortal()}
+                  className="neo-btn bg-[var(--color-neo-border)] text-white text-lg flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  <Mic size={20} /> Recommencer
+                  {submitLoading ? (
+                    <Loader2 className="animate-spin" size={22} />
+                  ) : (
+                    <Send size={22} />
+                  )}
+                  Portail&apos;e kaydet (süre + sujet)
                 </button>
-                {blobUrl && (
-                  <a
-                    href={blobUrl}
-                    download={`po-${moduleData.id}.webm`}
-                    className="neo-btn neo-bg-blue !text-white text-lg flex items-center justify-center gap-2"
-                  >
-                    <Download size={20} /> Télécharger
-                  </a>
+                {submitOk && (
+                  <p className="text-green-700 font-bold text-sm neo-box p-3 bg-green-50 border-[2px] border-green-600">
+                    {submitOk}
+                  </p>
+                )}
+                {submitErr && (
+                  <p className="text-red-700 font-bold text-sm neo-box p-3 bg-red-50 border-[2px] border-red-500">
+                    {submitErr}
+                  </p>
                 )}
               </div>
             )}
@@ -252,8 +330,8 @@ export default function POPage() {
           </div>
 
           <p className="text-sm text-gray-500 font-sans">
-            Le fichier reste sur votre appareil. Pour l’envoi professeur / cloud (Vercel Blob, S3), une route
-            d’upload pourra être ajoutée.
+            « Portail&apos;e kaydet » süre ve konu bilgisini veritabanına yazar. Ses dosyası cihazınızda kalır;
+            ileride blob / ElevenLabs ile <code className="font-mono text-xs">mediaUrl</code> doldurulabilir.
           </p>
         </div>
 

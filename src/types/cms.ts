@@ -37,5 +37,6 @@ export type VocabTopic = {
   summary?: string;
   level?: string;
   targetGrades?: string[];
+  targetSchools?: string[];
   cards?: VocabCard[] | null;
 };

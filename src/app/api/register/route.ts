@@ -4,13 +4,20 @@ import bcrypt from 'bcryptjs';
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
+    const raw = await req.json();
+    const name = typeof raw.name === "string" ? raw.name.trim().slice(0, 120) : "";
+    const email = typeof raw.email === "string" ? raw.email.trim().toLowerCase().slice(0, 254) : "";
+    const password = typeof raw.password === "string" ? raw.password : "";
 
     if (!email || !password || !name) {
       return NextResponse.json(
         { error: "Ad, e-posta ve şifre alanları zorunludur." },
         { status: 400 }
       );
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: "Geçerli bir e-posta girin." }, { status: 400 });
     }
 
     if (password.length < 6) {
@@ -41,10 +48,9 @@ export async function POST(req: Request) {
       }
     });
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: "Hesabınız başarıyla oluşturuldu!",
-      userId: user.id 
     });
   } catch (error) {
     console.error("Register Error:", error);

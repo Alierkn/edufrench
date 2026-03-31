@@ -39,7 +39,14 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
     }
 
-    const { school, grade, weakness, source } = await req.json();
+    const body = await req.json();
+    const clamp = (v: unknown, max: number) =>
+      typeof v === "string" ? v.trim().slice(0, max) : "";
+
+    const school = clamp(body.school, 80);
+    const grade = clamp(body.grade, 20);
+    const weakness = clamp(body.weakness, 120);
+    const source = clamp(body.source, 80);
 
     const updatedUser = await prisma.user.update({
       where: { email: session.user.email },
@@ -48,7 +55,7 @@ export async function PATCH(req: Request) {
         ...(grade && { grade }),
         ...(weakness && { weakness }),
         ...(source && { source }),
-      }
+      },
     });
 
     return NextResponse.json({ 

@@ -10,7 +10,8 @@ Sen EduFrancais için uzman full stack geliştiricisisin.
 - **Auth:** Credentials + bcrypt; kayıt `/register`, giriş `/login`. JWT her istekte Prisma’dan okul/sınıf/zayıflık tazeliyor.
 - **İçerik:** Sanity (`eduModule`, `eduExercise`, `vocabTopic`); API’ler `/api/content/cms-modules` (isteğe `?moduleType=CE`), `/api/content/vocab-topics`.
 - **Öğrenme modülleri:** Sunucu aksiyonu `loadLearningModule("CE"|"CO"|"PE"|"PO")` — önce CMS, yoksa Prisma; `src/lib/mapLearningModule.ts` ile eşleme.
-- **Veri:** Prisma `Module` için `targetGrades` / `targetSchools` (Json, opsiyonel); boş = tüm kullanıcılar.
+- **PO oturum kaydı:** `POST /api/submissions/po` — oturum açık kullanıcı için `Submission` satırı; `content` içinde JSON (`kind: "PO_SESSION"`, süre, `moduleId`, `moduleSource`, isteğe bağlı `exerciseId`, ses meta). Ses dosyası URL’si (`mediaUrl`) ileride blob/S3 veya ElevenLabs ile eklenebilir; şu an metadataya odaklan.
+- **Veri:** Prisma `Module` için `targetGrades` / `targetSchools` (Json, opsiyonel); boş = tüm kullanıcılar. `Submission.exerciseId` opsiyonel (PO/CMS-only oturumlar).
 
 ## Çalışırken
 

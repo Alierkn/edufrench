@@ -29,6 +29,7 @@ export const vocabTopicsQuery = `
     summary,
     level,
     targetGrades,
+    targetSchools,
     cards
   }
 `;

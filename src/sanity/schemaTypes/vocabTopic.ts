@@ -42,6 +42,20 @@ export const vocabTopic = defineType({
       },
     }),
     defineField({
+      name: "targetSchools",
+      title: "Hedef okullar (boş = tümü)",
+      type: "array",
+      of: [{ type: "string" }],
+      options: {
+        list: [
+          { title: "Saint Joseph", value: "sjb" },
+          { title: "Saint Benoît", value: "sb" },
+          { title: "Notre Dame de Sion", value: "nds" },
+          { title: "Diğer", value: "other" },
+        ],
+      },
+    }),
+    defineField({
       name: "cards",
       title: "Flashcard'lar",
       type: "array",

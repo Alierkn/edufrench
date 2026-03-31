@@ -149,14 +149,15 @@ model StudySession {
 model Submission {
   id          String   @id @default(uuid())
   userId      String
-  exerciseId  String
-  content     String?  // PE için textarea gönderisi
-  mediaUrl    String?  // PO için ses kaydı bağlantısı
+  /// PO veya harici modüllerde egzersiz yoksa null (ElevenLabs / blob sonrası genişletilebilir)
+  exerciseId  String?
+  content     String?  // PE metni veya PO meta JSON
+  mediaUrl    String?  // PO ses URL (ileride blob)
   score       Float?   // Öğretmen/AI puanı
   feedback    String?  // Geri bildirim JSON formatında veya Düz metin
   status      String   @default("PENDING") // PENDING, REVIEWED
   createdAt   DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exercise    Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise    Exercise? @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
 }

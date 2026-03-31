@@ -14,6 +14,7 @@ import {
   mapPrismaModule,
   randomElement,
 } from "@/lib/mapLearningModule";
+import { prismaModuleMatchesUser } from "@/lib/prismaContentFilter";
 
 export async function getRandomModule(type: string) {
   const modules = await prisma.module.findMany({
@@ -54,7 +55,13 @@ export async function loadLearningModule(moduleType: string): Promise<UnifiedLea
     include: { exercises: { include: { options: true } } },
   });
   if (!prismaMods.length) return null;
-  const mapped = prismaMods.map(mapPrismaModule).filter((u) => isModuleUsableForType(u, moduleType));
-  const pool = mapped.length ? mapped : prismaMods.map(mapPrismaModule);
+
+  const profileFiltered = prismaMods.filter((m) =>
+    prismaModuleMatchesUser(m, user?.grade, user?.school)
+  );
+  const poolRaw = profileFiltered.length ? profileFiltered : prismaMods;
+
+  const mapped = poolRaw.map(mapPrismaModule).filter((u) => isModuleUsableForType(u, moduleType));
+  const pool = mapped.length ? mapped : poolRaw.map(mapPrismaModule);
   return randomElement(pool);
 }

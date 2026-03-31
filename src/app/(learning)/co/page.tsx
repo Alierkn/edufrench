@@ -14,6 +14,7 @@ export default function COPage() {
   const [progress, setProgress] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [playError, setPlayError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -59,10 +60,14 @@ export default function COPage() {
   const togglePlay = () => {
     const a = audioRef.current;
     if (!a) return;
+    setPlayError(null);
     if (isPlaying) {
       a.pause();
     } else {
-      void a.play().catch(() => setIsPlaying(false));
+      void a.play().catch(() => {
+        setIsPlaying(false);
+        setPlayError("Ses oynatılamadı. Başka tarayıcı veya dosya biçimi deneyin.");
+      });
     }
   };
 
@@ -116,7 +121,14 @@ export default function COPage() {
       </header>
 
       {hasAudio && (
-        <audio ref={audioRef} src={exercise.mediaUrl!} preload="metadata" className="hidden" />
+        <>
+          <audio ref={audioRef} src={exercise.mediaUrl!} preload="metadata" className="hidden" />
+          {playError && (
+            <p className="text-red-600 font-bold font-sans text-sm neo-box p-3 bg-red-50 border-[2px] border-red-400">
+              {playError}
+            </p>
+          )}
+        </>
       )}
 
       <div className="neo-box p-6 sm:p-8 bg-blue-50 border-[4px] border-[var(--color-neo-border)] shadow-[6px_6px_0_0_rgba(30,30,30,1)] flex flex-col sm:flex-row sm:items-center gap-6">
@@ -125,6 +137,7 @@ export default function COPage() {
             <button
               type="button"
               onClick={togglePlay}
+              aria-label={isPlaying ? "Pause" : "Lecture"}
               className="w-[72px] h-[72px] shrink-0 rounded-full bg-[var(--color-neo-blue)] neo-box !border-4 !rounded-full flex items-center justify-center text-white hover:scale-105 transition-transform"
             >
               {isPlaying ? (

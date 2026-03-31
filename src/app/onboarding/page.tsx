@@ -15,17 +15,19 @@ export default function OnboardingFlow() {
     weakness: '',
     source: ''
   });
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [savingProfile, setSavingProfile] = useState(false);
 
   const nextStep = () => setStep((prev) => prev + 1);
 
   const completeOnboarding = async () => {
-    // Save to global local storage state
+    setProfileError(null);
+    setSavingProfile(true);
     setUserInfo({
       grade: answers.grade,
       school: answers.school,
       source: answers.source
     });
-    // Besleme "Bugünün Odak Çalışması"
     if (answers.weakness) {
       addWeakness(answers.weakness);
     }
@@ -36,14 +38,21 @@ export default function OnboardingFlow() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(answers),
       });
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        console.error("Failed to save profile:", await res.text());
+        const msg =
+          (typeof data.error === "string" && data.error) ||
+          "Profil kaydedilemedi. Oturum açık mı kontrol edin.";
+        setProfileError(msg);
+        setSavingProfile(false);
+        return;
       }
-    } catch (error) {
-      console.error("Failed to save profile:", error);
+    } catch {
+      setProfileError("Ağ hatası. Tekrar deneyin.");
+      setSavingProfile(false);
+      return;
     }
 
-    // Tam sayfa yüklemesi: JWT oturumunda okul/sınıf alanlarının güncellenmesi için
     window.location.href = "/dashboard";
   };
 
@@ -157,13 +166,21 @@ export default function OnboardingFlow() {
                Sonraki Adım <ArrowRight size={28} />
              </button>
            ) : (
-             <button 
-               onClick={completeOnboarding} 
-               disabled={!answers.source}
-               className="neo-btn text-2xl flex items-center gap-4 bg-[var(--color-neo-green)] text-white disabled:bg-gray-200 disabled:text-gray-400 hover:bg-green-600 disabled:shadow-none"
-             >
-               Akademik Dashborda Git <ArrowRight size={28} />
-             </button>
+             <div className="flex flex-col items-end gap-4 w-full max-w-2xl ml-auto">
+               {profileError && (
+                 <p className="text-red-600 font-bold font-sans neo-box p-4 bg-red-50 border-[3px] border-red-400 w-full text-left">
+                   {profileError}
+                 </p>
+               )}
+               <button
+                 type="button"
+                 onClick={completeOnboarding}
+                 disabled={!answers.source || savingProfile}
+                 className="neo-btn text-2xl flex items-center gap-4 bg-[var(--color-neo-green)] text-white disabled:bg-gray-200 disabled:text-gray-400 hover:bg-green-600 disabled:shadow-none"
+               >
+                 {savingProfile ? "Kaydediliyor…" : "Akademik Dashborda Git"} <ArrowRight size={28} />
+               </button>
+             </div>
            )}
         </div>
       </div>
