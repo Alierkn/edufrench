@@ -1,26 +1,65 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-neo-bg: #FDF9F1;     /* Neo Brutalist Paper Cream */
+  --color-neo-card: #FFFFFF;
+  --color-neo-border: #1E1E1E; /* Thick Dark Borders */
+  
+  --color-neo-yellow: #FFD23F;
+  --color-neo-blue: #3E8ED0;
+  --color-neo-purple: #9D4EDD;
+  --color-neo-pink: #FF66A3;
+  --color-neo-green: #20C997;
+
+  --shadow-neo-sm: 4px 4px 0px 0px rgba(30,30,30,1);
+  --shadow-neo: 6px 6px 0px 0px rgba(30,30,30,1);
+  --shadow-neo-lg: 10px 10px 0px 0px rgba(30,30,30,1);
+
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  body {
+    background-color: var(--color-neo-bg);
+    color: var(--color-neo-border);
+    font-family: var(--font-sans);
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    font-weight: 800;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .neo-box {
+    border: 3px solid var(--color-neo-border);
+    border-radius: 12px;
+    background-color: var(--color-neo-card);
+    box-shadow: var(--shadow-neo);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  
+  .neo-btn {
+    border: 3px solid var(--color-neo-border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-neo-sm);
+    font-weight: 700;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    cursor: pointer;
+    text-align: center;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .neo-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px 0px rgba(30,30,30,1);
+  }
+
+  .neo-bg-yellow { background-color: var(--color-neo-yellow); }
+  .neo-bg-blue { background-color: var(--color-neo-blue); color: white; }
+  .neo-bg-purple { background-color: var(--color-neo-purple); color: white; }
+  .neo-bg-pink { background-color: var(--color-neo-pink); color: white; }
+  .neo-bg-green { background-color: var(--color-neo-green); }
 }
