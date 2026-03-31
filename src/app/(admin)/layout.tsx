@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Database, PlusCircle, LayoutDashboard } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: { default: "Admin" },
+/** Düz string: Next 16'da `{ default }` tek başına geçersiz (template zorunlu). */
+export const metadata = {
+  title: "Admin",
   robots: { index: false, follow: false },
-};
-import { Database, PlusCircle, LayoutDashboard } from 'lucide-react';
+} satisfies Metadata;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
