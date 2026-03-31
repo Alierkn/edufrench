@@ -15,15 +15,18 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    const result = await signIn('credentials', {
+    const result = await signIn("credentials", {
       redirect: false,
       email,
       password,
     });
 
     if (result?.ok) {
-      // Başarılı girişten sonra Onboarding sayfasına yönlendir.
-      router.push('/onboarding');
+      const res = await fetch("/api/user/profile");
+      const data = res.ok ? await res.json() : null;
+      const u = data?.user;
+      const onboardingDone = Boolean(u?.grade && u?.school);
+      router.push(onboardingDone ? "/dashboard" : "/onboarding");
     } else {
       setIsLoading(false);
       alert('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
@@ -86,7 +89,10 @@ export default function LoginPage() {
          </form>
 
          <div className="mt-8 text-center border-t-2 border-gray-200 pt-6">
-            <p className="text-sm font-bold text-gray-400">İlk kez mi giriyorsunuz? <br/> E-postanızı yazdığınızda hesabınız otomatik açılır.</p>
+            <p className="text-sm font-bold text-gray-400 mb-2">Hesabınız yok mu?</p>
+            <a href="/register" className="text-[var(--color-neo-blue)] font-bold text-lg underline hover:text-blue-700">
+              Kayıt Ol →
+            </a>
          </div>
       </motion.div>
 

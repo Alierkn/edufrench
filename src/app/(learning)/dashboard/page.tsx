@@ -1,5 +1,6 @@
 "use client";
 import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
 import { Target, TrendingUp, Zap, LogOut, ArrowRight, BookOpen, Headphones, Library, BrainCircuit, Mic } from 'lucide-react';
 import { useProgress } from '@/store/useProgress';
 import { useEffect, useState } from 'react';
@@ -18,7 +19,18 @@ const getRecommendation = (weakness: string) => {
   return { title: "Vocabulaire Set 1", href: "/vocabulaire", icon: <Zap className="text-yellow-500" size={32} /> };
 };
 
+const getSchoolName = (schoolCode: string) => {
+  if (schoolCode === 'sjb') return 'Saint Joseph Lisesi';
+  if (schoolCode === 'sb') return 'Saint Benoît';
+  if (schoolCode === 'nds') return 'Notre Dame de Sion';
+  if (schoolCode === 'other') return 'Diğer Lise';
+  return schoolCode;
+};
+
 export default function Dashboard() {
+  const { data: session } = useSession();
+  const userData = session?.user as any;
+
   const [isClient, setIsClient] = useState(false);
   const { weaknesses, totalScore } = useProgress();
 
@@ -38,10 +50,20 @@ export default function Dashboard() {
     <div className="space-y-8 pb-20">
       <header className="flex justify-between items-end mb-8 border-b-4 border-[var(--color-neo-border)] pb-6">
         <div>
-          <h1 className="text-5xl font-black font-sans text-[var(--color-neo-border)] mb-2">Bonjour, Öğrenci.</h1>
-          <p className="text-xl font-bold text-gray-400">EduFrancais Akademik Portalı'na Hoş Geldin.</p>
+          <h1 className="text-5xl font-black font-sans text-[var(--color-neo-border)] mb-2">
+            Bonjour, {userData?.name?.split(' ')[0] || "Öğrenci"}.
+          </h1>
+          {userData?.school && userData?.grade && (
+            <p className="text-xl font-bold text-gray-400 mb-1">
+               {getSchoolName(userData.school)} — {userData.grade}. Sınıf
+            </p>
+          )}
+          <p className="text-xl font-bold text-[var(--color-neo-blue)]">EduFrancais Akademik Portalı'na Hoş Geldin.</p>
         </div>
-        <button className="flex items-center gap-2 font-bold text-gray-500 hover:text-red-500 transition-colors bg-white px-4 py-2 neo-box !border-2">
+        <button 
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          className="flex items-center gap-2 font-bold text-gray-500 hover:text-red-500 transition-colors bg-white px-4 py-2 neo-box !border-2"
+        >
           <LogOut size={18} /> Çıkış
         </button>
       </header>

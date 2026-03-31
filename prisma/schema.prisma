@@ -57,10 +57,13 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  password      String?   // bcrypt hashed password
   
   // Custom EduFrancais fields
   school        String?   // Saint Joseph vs.
   grade         String?   // 10. Sınıf vb.
+  weakness      String?   // En çok zorlandığı alan
+  source        String?   // Bizi nereden duydu
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -81,6 +84,10 @@ model Module {
   type        String   // CE, CO, PE, PO, Grammaire, Vocabulaire
   level       String   // A2, B1, B2
   description String?  // Modül tüyoları veya yönergeleri
+  /// Hedef sınıflar: ["9","10"] veya null = tüm sınıflar
+  targetGrades  Json?
+  /// Hedef okullar: ["sjb","sb"] veya null = tüm okullar
+  targetSchools Json?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
 

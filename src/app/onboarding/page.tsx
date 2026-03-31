@@ -18,7 +18,7 @@ export default function OnboardingFlow() {
 
   const nextStep = () => setStep((prev) => prev + 1);
 
-  const completeOnboarding = () => {
+  const completeOnboarding = async () => {
     // Save to global local storage state
     setUserInfo({
       grade: answers.grade,
@@ -29,7 +29,22 @@ export default function OnboardingFlow() {
     if (answers.weakness) {
       addWeakness(answers.weakness);
     }
-    router.push('/dashboard');
+
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(answers),
+      });
+      if (!res.ok) {
+        console.error("Failed to save profile:", await res.text());
+      }
+    } catch (error) {
+      console.error("Failed to save profile:", error);
+    }
+
+    // Tam sayfa yüklemesi: JWT oturumunda okul/sınıf alanlarının güncellenmesi için
+    window.location.href = "/dashboard";
   };
 
   const OptionButton = ({ label, field, value, icon }: { label: string, field: keyof typeof answers, value: string, icon?: React.ReactNode }) => (

@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { Database, RefreshCw, Layers } from 'lucide-react';
+import { Database, RefreshCw, Layers, PenLine } from "lucide-react";
 import Link from 'next/link';
 
 // SEED ACTION
@@ -120,16 +120,27 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-8 pb-20">
-      <header className="flex justify-between items-center bg-white p-8 neo-box !border-4">
+      <header className="flex flex-col gap-6 lg:flex-row lg:justify-between lg:items-center bg-white p-8 neo-box !border-4">
         <div>
           <h1 className="text-4xl font-black text-[var(--color-neo-border)]">Veritabanı Yönetimi (CMS)</h1>
-          <p className="text-xl font-bold text-gray-500 mt-2">({modules.length}) Modül ve İçerik Bulunuyor</p>
+          <p className="text-xl font-bold text-gray-500 mt-2">({modules.length}) Prisma modülü · Sanity Studio ile canlı içerik</p>
         </div>
-        <form action={seedDatabase}>
-           <button type="submit" className="neo-btn neo-bg-green !text-[var(--color-neo-border)] flex items-center gap-2 px-6 py-3">
-             <RefreshCw /> Sistemi (A1-B2) ile Doldur
-           </button>
-        </form>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/studio"
+            className="neo-btn bg-[var(--color-neo-blue)] text-white flex items-center gap-2 px-6 py-3 hover:opacity-90"
+          >
+            <PenLine size={20} /> Sanity Studio
+          </Link>
+          <form action={seedDatabase}>
+            <button
+              type="submit"
+              className="neo-btn neo-bg-green !text-[var(--color-neo-border)] flex items-center gap-2 px-6 py-3"
+            >
+              <RefreshCw /> Prisma seed (A1–B2)
+            </button>
+          </form>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

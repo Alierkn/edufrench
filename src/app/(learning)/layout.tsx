@@ -1,14 +1,25 @@
-import Link from 'next/link';
-import { BookOpen, Headphones, PenTool, Mic, Library, GraduationCap, LayoutDashboard } from 'lucide-react';
+import Link from "next/link";
+import {
+  BookOpen,
+  Headphones,
+  PenTool,
+  Mic,
+  Library,
+  GraduationCap,
+  LayoutDashboard,
+} from "lucide-react";
+import { SidebarGradeBadge } from "@/components/SidebarGradeBadge";
 
 export default function LearningLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--color-neo-bg)]">
+    <div className="flex min-h-screen md:h-screen overflow-hidden bg-[var(--color-neo-bg)] flex-col md:flex-row">
       {/* Sidebar */}
-      <aside className="w-[280px] border-r-4 border-[var(--color-neo-border)] bg-white flex flex-col h-full shadow-[4px_0_0_0_rgba(30,30,30,1)] z-10 shrink-0">
+      <aside className="w-full md:w-[280px] md:shrink-0 border-b-4 md:border-b-0 md:border-r-4 border-[var(--color-neo-border)] bg-white flex flex-col md:h-full shadow-[4px_0_0_0_rgba(30,30,30,1)] z-10 max-h-[50vh] md:max-h-none overflow-y-auto">
         <div className="p-6 border-b-4 border-[var(--color-neo-border)]">
-          <Link href="/"><h2 className="text-2xl font-bold font-serif mb-3 hover:underline">EduFrancais.</h2></Link>
-          <div className="text-xs font-bold uppercase tracking-wider px-3 py-1 bg-[var(--color-neo-yellow)] neo-box inline-block">10. Sınıf</div>
+          <Link href="/">
+            <h2 className="text-2xl font-bold font-serif mb-3 hover:underline">EduFrancais.</h2>
+          </Link>
+          <SidebarGradeBadge />
         </div>
         
         <nav className="flex-1 overflow-y-auto p-4 space-y-2">
@@ -41,7 +52,7 @@ export default function LearningLayout({ children }: { children: React.ReactNode
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 h-full overflow-y-auto p-6 md:p-12 relative">
+      <main className="flex-1 min-h-0 md:h-full overflow-y-auto p-4 sm:p-6 md:p-12 relative">
         <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none" style={{ backgroundImage: "radial-gradient(#1E1E1E 1px, transparent 1px)", backgroundSize: "20px 20px" }}></div>
         <div className="relative z-10 w-full max-w-5xl mx-auto">
           {children}
