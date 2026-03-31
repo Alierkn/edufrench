@@ -11,11 +11,14 @@ import {
 } from "lucide-react";
 import { SidebarGradeBadge } from "@/components/SidebarGradeBadge";
 
-/** Next 16: `title: { default: "…" }` tek başına geçersiz (template zorunlu); düz string kullan. */
-export const metadata = {
+/**
+ * Next.js 16: `title: { default: "…" }` kullanma — `template` de şart; segment için düz string yeterli
+ * (kök layout’taki `title.template` ile birleşir).
+ */
+export const metadata: Metadata = {
   title: "Öğrenme alanı",
   robots: { index: false, follow: false },
-} satisfies Metadata;
+};
 
 export default function LearningLayout({ children }: { children: React.ReactNode }) {
   return (
