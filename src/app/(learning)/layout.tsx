@@ -11,10 +11,11 @@ import {
 } from "lucide-react";
 import { SidebarGradeBadge } from "@/components/SidebarGradeBadge";
 
-export const metadata: Metadata = {
-  title: { default: "Öğrenme alanı" },
+/** Next 16: `title: { default: "…" }` tek başına geçersiz (template zorunlu); düz string kullan. */
+export const metadata = {
+  title: "Öğrenme alanı",
   robots: { index: false, follow: false },
-};
+} satisfies Metadata;
 
 export default function LearningLayout({ children }: { children: React.ReactNode }) {
   return (
