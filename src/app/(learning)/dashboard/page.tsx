@@ -136,7 +136,7 @@ export default function Dashboard() {
                {getSchoolName(userData.school)} — {userData.grade}. Sınıf
             </p>
           )}
-          <p className="text-xl font-bold text-[var(--color-neo-blue)]">EduFrancais Akademik Portalı'na Hoş Geldin.</p>
+          <p className="text-xl font-bold text-[var(--color-neo-blue)]">EduFrancais Akademik Portalı&apos;na Hoş Geldin.</p>
         </div>
         <button 
           onClick={() => signOut({ callbackUrl: '/login' })}
@@ -156,7 +156,7 @@ export default function Dashboard() {
               </span>
               {recommendation.icon}
             </div>
-            <h2 className="text-4xl font-serif font-black text-[var(--color-neo-border)] leading-tight mt-6 mb-2">Zayıflık Tespit Edildi: <br/> "{targetWeakness}"</h2>
+            <h2 className="text-4xl font-serif font-black text-[var(--color-neo-border)] leading-tight mt-6 mb-2">Zayıflık Tespit Edildi: <br/> &quot;{targetWeakness}&quot;</h2>
             <p className="font-bold text-gray-700 font-sans text-lg">Son çalışmandaki eksikliklerine dayanarak bugün {recommendation.title} pratiği yapmanı öneriyoruz.</p>
           </div>
           
