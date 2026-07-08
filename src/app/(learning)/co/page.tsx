@@ -16,6 +16,7 @@ export default function COPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [playError, setPlayError] = useState<string | null>(null);
+  const [audioTime, setAudioTime] = useState({ current: 0, duration: 0 });
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -38,20 +39,30 @@ export default function COPage() {
     const onTime = () => {
       if (a.duration && !Number.isNaN(a.duration)) {
         setProgress((a.currentTime / a.duration) * 100);
+        setAudioTime({ current: a.currentTime, duration: a.duration });
       }
+    };
+    const onLoadedMetadata = () => {
+      setAudioTime({
+        current: a.currentTime,
+        duration: Number.isNaN(a.duration) ? 0 : a.duration,
+      });
     };
     const onEnded = () => {
       setIsPlaying(false);
       setProgress(100);
+      setAudioTime({ current: a.duration || 0, duration: a.duration || 0 });
     };
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
     a.addEventListener("timeupdate", onTime);
+    a.addEventListener("loadedmetadata", onLoadedMetadata);
     a.addEventListener("ended", onEnded);
     a.addEventListener("play", onPlay);
     a.addEventListener("pause", onPause);
     return () => {
       a.removeEventListener("timeupdate", onTime);
+      a.removeEventListener("loadedmetadata", onLoadedMetadata);
       a.removeEventListener("ended", onEnded);
       a.removeEventListener("play", onPlay);
       a.removeEventListener("pause", onPause);
@@ -162,8 +173,8 @@ export default function COPage() {
                   {isPlaying ? "Lecture…" : progress >= 99 ? "Terminé" : "Piste audio"}
                 </span>
                 <span className="font-mono text-sm">
-                  {audioRef.current && !Number.isNaN(audioRef.current.duration)
-                    ? `${Math.floor(audioRef.current.currentTime)}s / ${Math.floor(audioRef.current.duration)}s`
+                  {audioTime.duration
+                    ? `${Math.floor(audioTime.current)}s / ${Math.floor(audioTime.duration)}s`
                     : "—"}
                 </span>
               </div>

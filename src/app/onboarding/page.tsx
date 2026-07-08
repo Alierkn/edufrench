@@ -1,15 +1,54 @@
 "use client";
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ArrowRight, CheckCircle2, Building, GraduationCap, Target, Podcast } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Building, GraduationCap, Target, Podcast } from 'lucide-react';
 import { useProgress } from '@/store/useProgress';
-import { useRouter } from 'next/navigation';
+
+type Answers = {
+  grade: string;
+  school: string;
+  weakness: string;
+  source: string;
+  emailFomoOptIn: boolean;
+};
+
+function OptionButton({
+  label,
+  field,
+  value,
+  icon,
+  selected,
+  onSelect,
+}: {
+  label: string;
+  field: keyof Answers;
+  value: string;
+  icon?: React.ReactNode;
+  selected: boolean;
+  onSelect: (field: keyof Answers, value: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(field, value)}
+      className={`w-full text-left p-6 font-bold font-sans text-xl border-[4px] transition-all flex items-center gap-4 ${
+        selected
+        ? 'bg-[var(--color-neo-border)] text-white shadow-[6px_6px_0_0_rgba(30,30,30,1)] border-[var(--color-neo-border)] translate-y-[2px] translate-x-[2px]'
+        : 'bg-white hover:bg-gray-100 border-[var(--color-neo-border)] shadow-[6px_6px_0_0_rgba(30,30,30,1)]'
+      }`}
+    >
+      <div className={`p-3 border-2 border-[var(--color-neo-border)] ${selected ? 'bg-white text-black' : 'bg-gray-100'} rounded-full`}>
+         {icon || <CheckCircle2 size={24} />}
+      </div>
+      {label}
+    </button>
+  );
+}
 
 export default function OnboardingFlow() {
-  const router = useRouter();
   const { setUserInfo, addWeakness } = useProgress();
   const [step, setStep] = useState(1);
-  const [answers, setAnswers] = useState({
+  const [answers, setAnswers] = useState<Answers>({
     grade: '',
     school: '',
     weakness: '',
@@ -20,6 +59,9 @@ export default function OnboardingFlow() {
   const [savingProfile, setSavingProfile] = useState(false);
 
   const nextStep = () => setStep((prev) => prev + 1);
+  const selectAnswer = (field: keyof Answers, value: string) => {
+    setAnswers((current) => ({ ...current, [field]: value }));
+  };
 
   const completeOnboarding = async () => {
     setProfileError(null);
@@ -57,22 +99,6 @@ export default function OnboardingFlow() {
     window.location.href = "/dashboard";
   };
 
-  const OptionButton = ({ label, field, value, icon }: { label: string, field: keyof typeof answers, value: string, icon?: React.ReactNode }) => (
-    <button
-      onClick={() => setAnswers({ ...answers, [field]: value })}
-      className={`w-full text-left p-6 font-bold font-sans text-xl border-[4px] transition-all flex items-center gap-4 ${
-        answers[field] === value 
-        ? 'bg-[var(--color-neo-border)] text-white shadow-[6px_6px_0_0_rgba(30,30,30,1)] border-[var(--color-neo-border)] translate-y-[2px] translate-x-[2px]' 
-        : 'bg-white hover:bg-gray-100 border-[var(--color-neo-border)] shadow-[6px_6px_0_0_rgba(30,30,30,1)]'
-      }`}
-    >
-      <div className={`p-3 border-2 border-[var(--color-neo-border)] ${answers[field] === value ? 'bg-white text-black' : 'bg-gray-100'} rounded-full`}>
-         {icon || <CheckCircle2 size={24} />}
-      </div>
-      {label}
-    </button>
-  );
-
   return (
     <div className="min-h-screen bg-[#FDF9F1] flex flex-col pt-12">
       {/* Progress Header */}
@@ -100,10 +126,10 @@ export default function OnboardingFlow() {
                  <p className="text-xl font-medium text-gray-500 font-sans">Sana lise müfredatına (DELF) uygun egzersizler sunabilmemiz için sınıfını bilmemiz gerekiyor.</p>
                </div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <OptionButton label="9. Sınıf (Hazırlık Sonrası)" field="grade" value="9" icon={<GraduationCap size={28} />} />
-                  <OptionButton label="10. Sınıf" field="grade" value="10" icon={<GraduationCap size={28} />} />
-                  <OptionButton label="11. Sınıf" field="grade" value="11" icon={<GraduationCap size={28} />} />
-                  <OptionButton label="12. Sınıf (Terminal)" field="grade" value="12" icon={<GraduationCap size={28} />} />
+                  <OptionButton label="9. Sınıf (Hazırlık Sonrası)" field="grade" value="9" icon={<GraduationCap size={28} />} selected={answers.grade === "9"} onSelect={selectAnswer} />
+                  <OptionButton label="10. Sınıf" field="grade" value="10" icon={<GraduationCap size={28} />} selected={answers.grade === "10"} onSelect={selectAnswer} />
+                  <OptionButton label="11. Sınıf" field="grade" value="11" icon={<GraduationCap size={28} />} selected={answers.grade === "11"} onSelect={selectAnswer} />
+                  <OptionButton label="12. Sınıf (Terminal)" field="grade" value="12" icon={<GraduationCap size={28} />} selected={answers.grade === "12"} onSelect={selectAnswer} />
                </div>
             </motion.div>
           )}
@@ -115,10 +141,10 @@ export default function OnboardingFlow() {
                  <p className="text-xl font-medium text-gray-500 font-sans">Ekol farklılıkları okuma/dinleme stillerini değiştirebilir. (Sadece sana özel listeleme için kullanılır).</p>
                </div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <OptionButton label="Saint Joseph lisesi" field="school" value="sjb" icon={<Building size={28} />} />
-                  <OptionButton label="Saint Benoît" field="school" value="sb" icon={<Building size={28} />} />
-                  <OptionButton label="Notre Dame de Sion" field="school" value="nds" icon={<Building size={28} />} />
-                  <OptionButton label="Diğer (S.Michel, Charles deG.)" field="school" value="other" icon={<Building size={28} />} />
+                  <OptionButton label="Saint Joseph lisesi" field="school" value="sjb" icon={<Building size={28} />} selected={answers.school === "sjb"} onSelect={selectAnswer} />
+                  <OptionButton label="Saint Benoît" field="school" value="sb" icon={<Building size={28} />} selected={answers.school === "sb"} onSelect={selectAnswer} />
+                  <OptionButton label="Notre Dame de Sion" field="school" value="nds" icon={<Building size={28} />} selected={answers.school === "nds"} onSelect={selectAnswer} />
+                  <OptionButton label="Diğer (S.Michel, Charles deG.)" field="school" value="other" icon={<Building size={28} />} selected={answers.school === "other"} onSelect={selectAnswer} />
                </div>
             </motion.div>
           )}
@@ -130,10 +156,10 @@ export default function OnboardingFlow() {
                  <p className="text-xl font-medium text-gray-500 font-sans">Dashboard algoritmasını beslemek için en çok zorlandığın Fransızca becerisini seç. Sana oradan yardım edeceğiz.</p>
                </div>
                <div className="grid grid-cols-1 gap-6">
-                  <OptionButton label="Grammaire Modülü (Dilbilgisi, Bağlaçlar)" field="weakness" value="Grammaire" icon={<Target size={28} className="text-red-500" />} />
-                  <OptionButton label="Compréhension Orale (Fransızları Dinlerken Anlayamama)" field="weakness" value="Dinleme" icon={<Target size={28} className="text-pink-500" />} />
-                  <OptionButton label="Production Écrite (Uzun kompozisyon yazamama)" field="weakness" value="Bağlaç" icon={<Target size={28} className="text-purple-500" />} />
-                  <OptionButton label="Vocabulaire (Kelime Eksiği Çok)" field="weakness" value="Kelime" icon={<Target size={28} className="text-yellow-500" />} />
+                  <OptionButton label="Grammaire Modülü (Dilbilgisi, Bağlaçlar)" field="weakness" value="Grammaire" icon={<Target size={28} className="text-red-500" />} selected={answers.weakness === "Grammaire"} onSelect={selectAnswer} />
+                  <OptionButton label="Compréhension Orale (Fransızları Dinlerken Anlayamama)" field="weakness" value="Dinleme" icon={<Target size={28} className="text-pink-500" />} selected={answers.weakness === "Dinleme"} onSelect={selectAnswer} />
+                  <OptionButton label="Production Écrite (Uzun kompozisyon yazamama)" field="weakness" value="Bağlaç" icon={<Target size={28} className="text-purple-500" />} selected={answers.weakness === "Bağlaç"} onSelect={selectAnswer} />
+                  <OptionButton label="Vocabulaire (Kelime Eksiği Çok)" field="weakness" value="Kelime" icon={<Target size={28} className="text-yellow-500" />} selected={answers.weakness === "Kelime"} onSelect={selectAnswer} />
                </div>
             </motion.div>
           )}
@@ -145,9 +171,9 @@ export default function OnboardingFlow() {
                  <p className="text-xl font-medium text-gray-500 font-sans">EduFrancais kapalı sistem bir vizyon. Aileme hoş geldin.</p>
                </div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <OptionButton label="Okul Arkadaşım Önerdi" field="source" value="friend" icon={<Podcast size={28} />} />
-                  <OptionButton label="Öğretmenim Bahsetti" field="source" value="teacher" icon={<Podcast size={28} />} />
-                  <OptionButton label="Sosyal Medya (Instagram vb.)" field="source" value="social" icon={<Podcast size={28} />} />
+                  <OptionButton label="Okul Arkadaşım Önerdi" field="source" value="friend" icon={<Podcast size={28} />} selected={answers.source === "friend"} onSelect={selectAnswer} />
+                  <OptionButton label="Öğretmenim Bahsetti" field="source" value="teacher" icon={<Podcast size={28} />} selected={answers.source === "teacher"} onSelect={selectAnswer} />
+                  <OptionButton label="Sosyal Medya (Instagram vb.)" field="source" value="social" icon={<Podcast size={28} />} selected={answers.source === "social"} onSelect={selectAnswer} />
                </div>
                <label className="flex items-start gap-4 mt-8 p-6 neo-box bg-white border-[3px] border-[var(--color-neo-border)] cursor-pointer max-w-2xl">
                  <input

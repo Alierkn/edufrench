@@ -175,7 +175,7 @@ export default async function AdminPage() {
           <div className="col-span-full neo-box p-12 bg-yellow-50 text-center flex flex-col items-center">
             <Database size={64} className="text-orange-400 mb-6" />
             <h2 className="text-3xl font-black mb-4">Veritabanınız Şu An Boş</h2>
-            <p className="text-xl font-medium text-gray-600">Yukarıdaki "Sistemi Doldur" butonuna basarak profesyonel DELF içeriklerini aktarabilirsiniz.</p>
+            <p className="text-xl font-medium text-gray-600">Yukarıdaki &quot;Sistemi Doldur&quot; butonuna basarak profesyonel DELF içeriklerini aktarabilirsiniz.</p>
           </div>
         )}
       </div>
